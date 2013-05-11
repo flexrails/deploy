@@ -16,19 +16,44 @@
 # http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html
 # 
 
-die() {
-  echo >&2 "$@"
-  exit 1
+usage() {
+cat <<EOF
+Usage: $0 <deploy user> <deploy server>
+
+OPTIONS:
+  -h              Show this message
+  -s <username>   Sudo username
+  -p <port>       SSH port
+  -i <filename>   Public key
+
+EOF
+exit
 }
 
-# exit on error
-set -e 
+SUDO_USER=root
+SSH_PORT_OPTIONS=
+DEPLOY_PUBKEY=~/.ssh/id_dsa.pub
 
-[ "$#" -eq 2 ] || die "Usage: provision <deploy user> <deploy server>"
+options='hs:p:i:'
+while getopts $options option
+do
+  case $option in 
+    h)  usage;;
+    s)  SUDO_USER=$OPTARG;;
+    p)  SSH_PORT_OPTIONS="-p $OPTARG";;
+    i)  DEPLOY_PUBKEY=$OPTARG;;
+  esac
+done
+
+shift $(($OPTIND-1))      # $1 is now the first non-option argument
+
+[ "$#" -eq 2 ] || usage
 
 DEPLOY_USER=$1
 DEPLOY_SERVER=$2
-DEPLOY_PUBKEY=~/.ssh/id_dsa.pub
+
+# exit on error
+set -e 
 
 read -s -p "Choose a password for ${DEPLOY_USER}@${DEPLOY_SERVER}: " PASSWORD
 PASSWORD_HASH=$(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
@@ -36,20 +61,20 @@ PASSWORD_HASH=$(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
 echo
 echo Provisioning server ${DEPLOY_SERVER}
 
-echo Copying public key to root@${DEPLOY_SERVER}, please provide password for root@${DEPLOY_SERVER}
-ssh-copy-id -i ${DEPLOY_PUBKEY} root@${DEPLOY_SERVER}
+echo Copying public key to ${SUDO_USER}@${DEPLOY_SERVER}, please provide password for ${SUDO_USER}@${DEPLOY_SERVER}
+ssh-copy-id -i ${DEPLOY_PUBKEY} "${SUDO_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
 echo Installing ruby, git, sprinkle on ${DEPLOY_SERVER}
-ssh root@${DEPLOY_SERVER} "apt-get -y update; apt-get -y install rubygems git; gem install sprinkle --no-rdoc --no-ri"
+ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
 
 echo Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}
-ssh root@${DEPLOY_SERVER} "useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}"
+ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}"
 
 echo Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide password for ${DEPLOY_USER}@${DEPLOY_SERVER}
-ssh-copy-id -i ${DEPLOY_PUBKEY} ${DEPLOY_USER}@${DEPLOY_SERVER}
+ssh-copy-id -i ${DEPLOY_PUBKEY} "${DEPLOY_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
 echo Cloning and running deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}
-ssh ${DEPLOY_USER}@${DEPLOY_SERVER} "git clone https://github.com/flexrails/deploy"
+ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "git clone https://github.com/flexrails/deploy"
 
 echo Provisioning finished. You can now login to ${DEPLOY_USER}@${DEPLOY_SERVER} and continue using
 echo "cd deploy; sprinkle -c -v -s development.rb"
