@@ -1,6 +1,6 @@
 package :redmine do
-  requires :apache2
+  requires :apache
   requires :mysql
 
-  apt %w( redmine redmine-mysql )
+  apt %w( redmine redmine-mysql libapache2-mod-passenger )
 end
