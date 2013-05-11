@@ -1,0 +1,5 @@
+DEPLOY_USER = ENV["DEPLOY_USER"] || ENV["USER"]
+DEPLOY_GROUPS = "sudo"
+DEPLOY_PASSWD = "test"
+
+$user = DEPLOY_USER
