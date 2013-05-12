@@ -28,6 +28,18 @@ EOF
 exit
 }
 
+info() {
+  echo -e "\e[1;37m$1\e[00m"
+}
+
+warn() {
+  echo -e "\e[1;33m$1\e[00m"
+}
+
+error() {
+  echo -e "\e[1;31m$1\e[00m"
+}
+
 SUDO_USER=root
 SSH_PORT_OPTIONS=
 DEPLOY_PUBKEY=~/.ssh/id_dsa.pub
@@ -57,25 +69,25 @@ read -s -p "Choose a password for ${DEPLOY_USER}@${DEPLOY_SERVER}: " PASSWORD
 PASSWORD_HASH=$(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
 
 echo
-echo Provisioning server ${DEPLOY_SERVER}
+info "Provisioning server ${DEPLOY_SERVER}"
 
-echo Copying public key to ${SUDO_USER}@${DEPLOY_SERVER}, please provide password for ${SUDO_USER}@${DEPLOY_SERVER}
+info "Copying public key to ${SUDO_USER}@${DEPLOY_SERVER}, please provide password for ${SUDO_USER}@${DEPLOY_SERVER}"
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${SUDO_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
-echo Installing ruby, git, sprinkle on ${DEPLOY_SERVER}
+info "Installing ruby, git, sprinkle on ${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
 
-echo Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}
+info "Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}; sudo chown ${DEPLOY_USER}.${DEPLOY_USER} /home/${DEPLOY_USER}"
 
-echo Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide password for ${DEPLOY_USER}@${DEPLOY_SERVER}
+info "Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide password for ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${DEPLOY_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
-echo Cloning and running deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}
+info "Cloning deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "if [ -d deploy ]; then echo "deploy directory already exists, skipping git clone"; else git clone https://github.com/flexrails/deploy; fi"
 
-echo Provisioning finished. You can now login to ${DEPLOY_USER}@${DEPLOY_SERVER} and continue using
-echo "cd deploy; sprinkle -c -v -s development.rb"
+info "Provisioning finished. You can now login to ${DEPLOY_USER}@${DEPLOY_SERVER} and continue using"
+info "cd deploy; sprinkle -c -v -s development.rb"
 
 # TODO: why need password again?
 # TODO: gen key on deployed server?
