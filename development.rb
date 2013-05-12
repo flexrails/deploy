@@ -13,6 +13,7 @@ policy :target, :roles => :dev do
 	requires :rails3
 	requires :sqlite
   requires :security
+  requires :webmin
 end
 
 package :application do

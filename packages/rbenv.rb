@@ -24,6 +24,7 @@ end
 
 package :rbenvrc_added_to_bash do
 	requires :rbenvrc_created
+	# TODO: use push_text instead
 	runner "true; echo 'source $HOME/.rbenvrc'|cat - $HOME/.bashrc|tee $HOME/.bashrc > /dev/null"
 	verify { file_contains "$HOME/.bashrc", ".rbenvrc" }
 end

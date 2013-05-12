@@ -3,7 +3,6 @@ package :rails3, :provides => :rails do
 	requires :ruby193
 	requires :rails_dependencies
 	requires :bundler
-#	requires :ruby
 
 	gemfile = <<-EOS
 		source "http://rubygems.org"
@@ -23,7 +22,6 @@ package :rails2, :provides => :rails do
 	requires :ruby187
 	requires :rails_dependencies
 	requires :bundler
-#	requires :ruby	
 
 	gemfile = <<-EOS
 		source "http://rubygems.org"

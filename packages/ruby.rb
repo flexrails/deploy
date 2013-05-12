@@ -11,7 +11,7 @@ package :ruby193, :provides => :ruby do
 	verify { has_version_in_grep bashify("rbenv versions"), v }
 end
 
-package :ruby187, :provides => :ruby do
+package :ruby187 do #, :provides => :ruby do
 	description "Ruby"
 	version "1.8.7"
 	requires :rbenv, :ruby_build, :ruby_dependencies
@@ -41,7 +41,6 @@ package :ruby_build do
 end
 
 package :bundler do
-	#gem "bundler"
 	requires :rbenv
 	requires :ruby
 	runner "true; gem install bundler"
