@@ -9,7 +9,7 @@ role :web, 	"to.be.defined"
 role :app, 	"to.be.defined"
 role :db, 	"to.be.defined"
 
-set :use_sudo, false
+set :use_sudo, true
 
 default_run_options[:pty] = true
 

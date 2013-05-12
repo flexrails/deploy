@@ -12,10 +12,15 @@ end
 policy :target, :roles => :dev do
 	requires :rails3
 	requires :sqlite
+  requires :security
 end
 
 package :application do
 	requires :rails3, :app_packages, :subversion
+end
+
+package :security do
+  requires :logcheck
 end
 
 apt_packages :app_packages, %w( imagemagick redis-server libxslt-dev libxml2-dev mysql-client libmysql-ruby mysql-server libmysqlclient-dev )

@@ -1,21 +1,19 @@
 #!/bin/bash
 #
-# SETS UP A MACHINE FROM WHICH WE CAN SPRINKLE
-# THEN SPRINKLE FROM THAT MACHINE TO DEPLOY OTHER SERVERS
+# sets up a fresh debian/ubuntu machine so that it can be used
+# for deploying itself or other machines with sprinkle
 #
 # Start with a fresh Debian/Ubuntu System (3GB Disk, 512MB Swap)
 #
-# REMOVE LOCAL KNOWN HOSTS
-# rm ~/.ssh/known_hosts
-#
-# FIRST ADD AND UNLOCK THE SSH KEY INSIDE BASH
-# ssh-agent $SHELL
-# ssh-add
+# 1. install/start bash (windows/linux)
+# 2. remove deploy server from ~/.ssh/known_hosts (optional)
+# 3. bash> ssh-agent $SHELL
+# 4. bash> ssh-add
+# 5. bash> ./provision.sh -s vagrant -p 2222 deploy localhost
 #
 # http://www.thegeekstuff.com/2008/11/3-steps-to-perform-ssh-login-without-password-using-ssh-keygen-ssh-copy-id/
-# http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html
-# 
-
+# http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html 
+#
 usage() {
 cat <<EOF
 Usage: $0 <deploy user> <deploy server>
@@ -68,13 +66,13 @@ echo Installing ruby, git, sprinkle on ${DEPLOY_SERVER}
 ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
 
 echo Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}
-ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}"
+ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}; sudo chown ${DEPLOY_USER}.${DEPLOY_USER} /home/${DEPLOY_USER}"
 
 echo Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide password for ${DEPLOY_USER}@${DEPLOY_SERVER}
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${DEPLOY_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
 echo Cloning and running deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}
-ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "git clone https://github.com/flexrails/deploy"
+ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "if [ -d deploy ]; then echo "deploy directory already exists, skipping git clone"; else git clone https://github.com/flexrails/deploy; fi"
 
 echo Provisioning finished. You can now login to ${DEPLOY_USER}@${DEPLOY_SERVER} and continue using
 echo "cd deploy; sprinkle -c -v -s development.rb"
