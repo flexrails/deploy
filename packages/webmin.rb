@@ -20,3 +20,7 @@ package :webmin_pubkey_installed do
   runner "apt-key list > apt-key-list"
   verify { file_contains "apt-key-list", "jcameron" }
 end
+
+package :webmin_secure do
+  # TODO: don't allow access without ssh
+end

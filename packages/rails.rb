@@ -15,6 +15,8 @@ package :rails3, :provides => :rails do
 	runner "true; rbenv rehash"
 	runner "true; rails new testapp"
 	push_text "gem 'therubyracer'", "testapp/Gemfile"
+
+	verify { file_contains "testapp/Gemfile", "gem 'therubyracer'" }
 end
 
 package :rails2, :provides => :rails do

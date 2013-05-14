@@ -74,14 +74,14 @@ info "Provisioning server ${DEPLOY_SERVER}"
 info "Copying public key to ${SUDO_USER}@${DEPLOY_SERVER}, please provide password for ${SUDO_USER}@${DEPLOY_SERVER}"
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${SUDO_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
-info "Installing ruby, git, sprinkle on ${DEPLOY_SERVER}"
-ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
-
 info "Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}; sudo chown ${DEPLOY_USER}.${DEPLOY_USER} /home/${DEPLOY_USER}"
 
 info "Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide password for ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${DEPLOY_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
+
+info "Installing ruby, git, sprinkle on ${DEPLOY_SERVER}"
+ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
 
 info "Cloning deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "if [ -d deploy ]; then echo "deploy directory already exists, skipping git clone"; else git clone https://github.com/flexrails/deploy; fi"
@@ -94,3 +94,9 @@ info "cd deploy; sprinkle -c -v -s development.rb"
 # TOOD: don't select ruby/rails version
 # TODO: remove public key from root
 # TODO: disable root remote login
+
+# TODO: don't allow sudo user to ssh
+# TODO: disable ssh with password
+# TODO: disbale ssh as root
+# TODO: only allow deploy user to ssh
+# TODO: do correct permission 

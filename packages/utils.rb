@@ -2,9 +2,9 @@ def runner2(cmds)
 	runner cmds
 end
 
-def has_apt(pkg)
-	has_version_in_grep "dpkg -l", " #{pkg} "
-end
+# def has_apt(pkg)
+# 	has_version_in_grep "dpkg -l", " #{pkg} "
+# end
 
 def apt_packages(target, pkgs)
 	pkgs.to_a.each do |pkg|
@@ -28,4 +28,10 @@ def ask_with_default(var, default)
 	end
 
 	set var, default if eval("#{var.to_s}.empty?")
+end
+
+def configure_option(pattern, value, filename)
+  regexp = "s/^ *#* *#{pattern}/#{value}/"
+  runner "sed -i -r \'#{regexp}\' #{filename}"
+  verify { file_contains filename, "^#{value}$" }
 end
