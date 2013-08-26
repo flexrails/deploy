@@ -1,21 +1,10 @@
 package :sshd_config do
-  requires :sshd_config_no_root_login
-  requires :sshd_config_no_password_authentication
-  # TODO: restart
-end
-
-package :sshd_config_no_root_login do 
   requires :sshd_config_backup
-  pattern = "PermitRootLogin (yes|no)"
-  value = "PermitRootLogin no"
-  configure_option(pattern, value, "/etc/ssh/sshd_config")
-end
+  requires :key_generation_or_key_propagation
 
-package :sshd_config_no_password_authentication do
-  requires :sshd_config_backup
-  pattern = "PasswordAuthentication (yes|no)"  
-  value = "PasswordAuthentication no"
-  configure_option(pattern, value, "/etc/ssh/sshd_config")
+  configure_option("PermitRootLogin (yes|no)", "PermitRootLogin no", "/etc/ssh/sshd_config")
+  configure_option("PasswordAuthentication (yes|no)", "PasswordAuthentication no", "/etc/ssh/sshd_config")
+  runner "service ssh reload"
 end
 
 package :sshd_config_backup do

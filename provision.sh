@@ -13,6 +13,8 @@
 #
 # http://www.thegeekstuff.com/2008/11/3-steps-to-perform-ssh-login-without-password-using-ssh-keygen-ssh-copy-id/
 # http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html 
+# http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you/
+# https://github.com/joshfng/railsready
 #
 usage() {
 cat <<EOF
@@ -65,14 +67,14 @@ DEPLOY_SERVER=$2
 # exit on error
 set -e 
 
-read -s -p "Choose a password for ${DEPLOY_USER}@${DEPLOY_SERVER}: " PASSWORD
-PASSWORD_HASH=$(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
-
 echo
 info "Provisioning server ${DEPLOY_SERVER}"
 
 info "Copying public key to ${SUDO_USER}@${DEPLOY_SERVER}, please provide password for ${SUDO_USER}@${DEPLOY_SERVER}"
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${SUDO_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
+
+read -s -p "Choose a password for ${DEPLOY_USER}@${DEPLOY_SERVER}: " PASSWORD
+PASSWORD_HASH=$(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
 
 info "Creating user ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo useradd -m -G sudo -s /bin/bash -p ${PASSWORD_HASH} ${DEPLOY_USER}; sudo chown ${DEPLOY_USER}.${DEPLOY_USER} /home/${DEPLOY_USER}"
@@ -81,7 +83,7 @@ info "Copying public key to ${DEPLOY_USER}@${DEPLOY_SERVER}, please provide pass
 ssh-copy-id -i ${DEPLOY_PUBKEY} "${DEPLOY_USER}@${DEPLOY_SERVER} ${SSH_PORT_OPTIONS}"
 
 info "Installing ruby, git, sprinkle on ${DEPLOY_SERVER}"
-ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install rubygems git; sudo gem install sprinkle --no-rdoc --no-ri"
+ssh ${SSH_PORT_OPTIONS} ${SUDO_USER}@${DEPLOY_SERVER} "sudo apt-get -y update; sudo apt-get -y install git ruby1.9.1 ruby1.9.1-dev make; sudo gem install sprinkle --no-rdoc --no-ri"
 
 info "Cloning deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "if [ -d deploy ]; then echo "deploy directory already exists, skipping git clone"; else git clone https://github.com/flexrails/deploy; fi"

@@ -35,3 +35,7 @@ def configure_option(pattern, value, filename)
   runner "sed -i -r \'#{regexp}\' #{filename}"
   verify { file_contains filename, "^#{value}$" }
 end
+
+def bashify(command)
+	"#{command}"
+end
