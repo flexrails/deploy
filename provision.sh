@@ -89,7 +89,7 @@ info "Cloning deploy scripts on ${DEPLOY_USER}@${DEPLOY_SERVER}"
 ssh ${SSH_PORT_OPTIONS} ${DEPLOY_USER}@${DEPLOY_SERVER} "if [ -d deploy ]; then echo "deploy directory already exists, skipping git clone"; else git clone https://github.com/flexrails/deploy; fi"
 
 info "Provisioning finished. You can now login to ${DEPLOY_USER}@${DEPLOY_SERVER} and continue using"
-info "cd deploy; sprinkle -c -v -s development.rb"
+info "cd deploy; sudo sprinkle -c -v -s development.rb"
 
 # TODO: why need password again?
 # TODO: gen key on deployed server?
