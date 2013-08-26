@@ -32,5 +32,5 @@ end
 package :rbenvrc_added_to_profile do
 	requires :rbenvrc_created
 	runner "true; echo 'source $HOME/.rbenvrc'|cat - $HOME/.profile|tee $HOME/.profile > /dev/null"
-	verify { file contains "$HOME/.profile", ".rbenvrc" }
+	verify { file_contains "$HOME/.profile", ".rbenvrc" }
 end

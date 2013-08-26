@@ -29,3 +29,7 @@ def ask_with_default(var, default)
 
 	set var, default if eval("#{var.to_s}.empty?")
 end
+
+def bashify(command)
+	"#{command}"
+end

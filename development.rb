@@ -1,4 +1,4 @@
-require "packages.rb"
+require "./packages.rb"
 
 deployment do
 	delivery :capistrano do
